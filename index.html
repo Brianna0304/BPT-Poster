@@ -1,142 +1,115 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR Video Player</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
     <style>
-      body { 
-        margin: 0; 
-        overflow: hidden;
-        font-family: Arial, sans-serif;
-      }
-      #info {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 1000;
-      }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .video-container {
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .controls {
+            background: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #45a049;
+        }
     </style>
-  </head>
-  <body>
-    <div id="info">Halte dein Gerät auf den Marker</div>
-    <a-scene
-      vr-mode-ui="enabled: false"
-      embedded
-      arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-      renderer="logarithmicDepthBuffer: true;"
-    >
-      <!-- Marker -->
-      <a-marker 
-        type="pattern" 
-        url="pattern-BPT_Plakat_marker.patt"
-        emitevents="true"
-        cursor="rayOrigin: mouse"
-        id="marker"
-      >
-        <!-- Video auf einer Plane -->
-        <a-entity position="0 0.5 0">
-          <a-plane
-            id="videoPlane"
-            width="1.78"
-            height="1"
-            position="0 0 0"
-            rotation="0 0 0"
-            material="shader: flat; transparent: true; opacity: 1"
-            visible="true"
-          >
-            <a-video
-              id="arVideo"
-              src="Komp 1.mp4"
-              width="1.78"
-              height="1"
-              position="0 0 0.01"
-              rotation="0 0 0"
-              autoplay="false"
-              loop="true"
-              muted="true"
-              webkit-playsinline
-              playsinline
-            ></a-video>
-          </a-plane>
-          
-          <!-- Play/Pause Button -->
-          <a-entity
-            id="playButton"
-            geometry="primitive: plane; width: 0.4; height: 0.4"
-            material="color: white; opacity: 0.8"
-            position="0 -0.7 0.1"
-            visible="false"
-            class="clickable"
-          >
-            <a-text
-              value="▶️"
-              align="center"
-              width="0.8"
-              position="0 0 0.01"
-            ></a-text>
-          </a-entity>
-        </a-entity>
-      </a-marker>
-
-      <!-- Kamera -->
-      <a-entity camera></a-entity>
-    </a-scene>
+</head>
+<body>
+    <div class="video-container">
+        <video id="myVideo" loop controls>
+            <source src="Komp 1.mp4" type="video/mp4">
+            Ihr Browser unterstützt das Video-Tag nicht.
+        </video>
+        <div class="controls">
+            <button onclick="playPause()">Play/Pause</button>
+            <button onclick="makeBig()">Groß</button>
+            <button onclick="makeNormal()">Normal</button>
+            <button onclick="makeSmall()">Klein</button>
+        </div>
+    </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const marker = document.querySelector('a-marker');
-        const video = document.querySelector('#arVideo');
-        const playButton = document.querySelector('#playButton');
-        const infoDiv = document.querySelector('#info');
-        let isPlaying = false;
-
-        // Marker gefunden
-        marker.addEventListener('markerFound', () => {
-          infoDiv.textContent = 'Marker erkannt! Tippe zum Abspielen.';
-          playButton.setAttribute('visible', true);
-          
-          // Video vorbereiten
-          video.components.material.material.map.image.play();
-          video.components.material.material.map.needsUpdate = true;
+        const video = document.getElementById("myVideo");
+        
+        function playPause() {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+        
+        function makeBig() {
+            video.width = 1280;
+            video.height = 720;
+        }
+        
+        function makeNormal() {
+            video.width = 854;
+            video.height = 480;
+        }
+        
+        function makeSmall() {
+            video.width = 320;
+            video.height = 180;
+        }
+        
+        // Automatisch starten (wenn der Browser es erlaubt)
+        document.addEventListener('DOMContentLoaded', function() {
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Autoplay wurde verhindert:", error);
+                    // Zeige einen Play-Button an, falls Autoplay nicht funktioniert
+                    const playBtn = document.createElement('button');
+                    playBtn.textContent = 'Video abspielen';
+                    playBtn.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 30px; font-size: 18px;';
+                    playBtn.onclick = function() {
+                        video.play();
+                        this.remove();
+                    };
+                    video.parentNode.style.position = 'relative';
+                    video.parentNode.appendChild(playBtn);
+                });
+            }
         });
-
-        // Marker verloren
-        marker.addEventListener('markerLost', () => {
-          infoDiv.textContent = 'Halte dein Gerät auf den Marker';
-          playButton.setAttribute('visible', false);
-          
-          // Video pausieren
-          video.components.material.material.map.image.pause();
-          isPlaying = false;
-          playButton.setAttribute('material', 'opacity', 0.8);
-        });
-
-        // Play/Pause Button
-        playButton.addEventListener('click', () => {
-          if (isPlaying) {
-            video.components.material.material.map.image.pause();
-            playButton.setAttribute('material', 'opacity', 0.8);
-            isPlaying = false;
-          } else {
-            video.components.material.material.map.image.play();
-            playButton.setAttribute('material', 'opacity', 0.5);
-            isPlaying = true;
-          }
-        });
-
-        // Touch-Event für mobile Geräte
-        playButton.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          playButton.emit('click', {});
-        });
-      });
     </script>
-  </body>
+</body>
 </html>
