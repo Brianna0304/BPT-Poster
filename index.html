@@ -17,58 +17,89 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         .video-container {
+            position: relative;
             width: 100%;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             background: white;
         }
         video {
             width: 100%;
-            max-height: 100vh;
+            height: 100%;
             object-fit: contain;
             background: white;
         }
-        /* Verstecke die Standard-Steuerelemente */
-        video::-webkit-media-controls {
-            display: none !important;
+        #playOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #startButton {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        #startButton:hover {
+            background: #ff1493;
+            transform: scale(1.05);
+        }
+        #startButton:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
     <div class="video-container">
-        <video id="myVideo" autoplay muted loop playsinline>
+        <video id="myVideo" loop>
             <source src="Komp 1.mp4" type="video/mp4">
             Ihr Browser unterstützt das Video-Tag nicht.
         </video>
     </div>
 
+    <div id="playOverlay">
+        <button id="startButton">Video mit Ton abspielen</button>
+    </div>
+
     <script>
         const video = document.getElementById("myVideo");
-        
-        // Versuche das Video mit Ton abzuspielen (wird nur nach Nutzerinteraktion funktionieren)
-        function enableAudio() {
-            video.muted = false;
-            video.play();
-            document.removeEventListener('click', enableAudio);
-            document.removeEventListener('touchstart', enableAudio);
+        const playOverlay = document.getElementById("playOverlay");
+        const startButton = document.getElementById("startButton");
+
+        // Funktion zum Starten des Videos mit Ton
+        function startVideoWithSound() {
+            // Entferne den Overlay
+            playOverlay.style.display = 'none';
+            
+            // Starte das Video
+            video.play().then(() => {
+                console.log("Video wird mit Ton abgespielt");
+            }).catch(error => {
+                console.error("Fehler beim Abspielen:", error);
+                // Zeige den Overlay wieder an, falls ein Fehler auftritt
+                playOverlay.style.display = 'flex';
+            });
         }
-        
-        // Füge Event-Listener für die erste Interaktion hinzu
-        document.addEventListener('DOMContentLoaded', function() {
-            // Versuche das Video automatisch abzuspielen (muted)
-            const playPromise = video.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Autoplay wurde verhindert:", error);
-                });
-            }
-            
-            // Aktiviere Ton beim ersten Klick/Touch
-            document.addEventListener('click', enableAudio);
-            document.addEventListener('touchstart', enableAudio);
+
+        // Event-Listener für den Start-Button
+        startButton.addEventListener('click', startVideoWithSound);
+        startButton.addEventListener('touchstart', startVideoWithSound);
+
+        // Optional: Video neu starten, wenn es zu Ende ist
+        video.addEventListener('ended', function() {
+            video.currentTime = 0;
+            video.play();
         });
     </script>
 </body>
