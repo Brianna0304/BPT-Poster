@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AR.js Test</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+    >
+      <!-- Marker: patternUrl auf deine .patt -->
+      <a-marker type="pattern" url="pattern-BPT_Plakat_marker.patt">
+        <!-- Video auf einer Plane -->
+        <a-plane
+          position="0 0.6 0"
+          width="1.78"
+          height="1"
+          rotation="0 0 0"
+        >
+          <a-video
+            src="Komp 1.mp4"
+            width="1.78"
+            height="1"
+            position="0 0 0.01"
+            rotation="0 0 0"
+            autoplay="true"
+            loop="true"
+            controls
+          ></a-video>
+        </a-plane>
+      </a-marker>
+
+      <!-- Damit AR auch ohne Marker was sieht -->
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
